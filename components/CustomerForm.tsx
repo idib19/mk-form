@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { toast } from 'sonner';
 import { CustomerInfo } from '@/lib/types';
+const FORM_SUBMISSION_ENDPOINT = process.env.NEXT_PUBLIC_FORM_SUBMISSION_ENDPOINT;
 
 const formSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -48,7 +49,13 @@ export function CustomerForm({ selectedModel, selectedService }: CustomerFormPro
         },
       };
 
-      const response = await fetch('https://sms-ai-agent-for-repair-store-production.up.railway.app/sms/trigger-message', {
+      if (!FORM_SUBMISSION_ENDPOINT) {
+        toast.error('Form submission endpoint is not configured.');
+        setIsSubmitting(false);
+        return;
+      }
+
+      const response = await fetch(FORM_SUBMISSION_ENDPOINT, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
